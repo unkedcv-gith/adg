@@ -1,0 +1,8 @@
+{
+  "name": "ADG Almacén de Granos S.A.",
+  "description": "Acopio de granos, logística y comercialización para el productor agropecuario. Respaldada por la trayectoria de Monasterio Tattersall y PGL en Daireaux, Bs. As.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

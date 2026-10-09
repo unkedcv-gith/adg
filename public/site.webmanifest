@@ -1,0 +1,16 @@
+{
+  "name": "ADG Almacén de Granos S.A.",
+  "short_name": "ADG Granos",
+  "description": "Acopio, logística y comercialización de cereales para el productor agropecuario.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#044524",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
