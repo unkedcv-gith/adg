@@ -9,13 +9,13 @@ import { Plus, MoveRight, Quote } from 'lucide-react';
 // @ts-ignore
 import logoCircular from '../assets/images/logo_circular_color.png';
 // @ts-ignore
-import logoTattersall from '../assets/images/logo_Tattersall.png';
+import logoTattersall from '../assets/images/logo_Tattersall.svg';
 // @ts-ignore
-import logoPgl from '../assets/images/pgllogoweb.png';
+import logoPgl from '../assets/images/pgllogoweb.svg';
 // @ts-ignore
 import logoCompletoBlanco from '../assets/images/logo_completo_blanco.png';
 // @ts-ignore
-import dscParallax from '../assets/images/DSC01655-1.jpg';
+import dscParallax from '../assets/images/DSC01655.jpg';
 
 export default function Impulsores() {
   const bannerRef = useRef<HTMLDivElement>(null);

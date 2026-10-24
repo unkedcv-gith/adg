@@ -3,10 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Facebook, Instagram, Linkedin, ArrowUp } from 'lucide-react';
+import { useState } from 'react';
+import { Facebook, Instagram, Linkedin, ArrowUp, X, Shield, FileText } from 'lucide-react';
 import Logo from './Logo';
 
 export default function Footer() {
+  const [legalModal, setLegalModal] = useState<'privacy' | 'terms' | null>(null);
+
   const handleScrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -86,16 +89,18 @@ export default function Footer() {
             <ul className="space-y-2 text-sm text-gray-300">
               <li>
                 <button
-                  onClick={() => alert("Política de Privacidad de ADG:\n\nSus datos de contacto se procesan con absoluta reserva para coordinar fletes, acopio e insumos. No compartimos su información personal con terceros ajenos a la operatoria comercial de ADG Almacén de Granos S.A.")}
-                  className="hover:text-white transition-colors text-left focus:outline-none"
+                  type="button"
+                  onClick={() => setLegalModal('privacy')}
+                  className="hover:text-white transition-colors text-left focus:outline-none cursor-pointer"
                 >
                   Política de Privacidad
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => alert("Términos y Condiciones:\n\nTodos los cupos de descarga y transacciones de granos se rigen por la normativa vigente de la Bolsa de Cereales de la República Argentina.")}
-                  className="hover:text-white transition-colors text-left focus:outline-none"
+                  type="button"
+                  onClick={() => setLegalModal('terms')}
+                  className="hover:text-white transition-colors text-left focus:outline-none cursor-pointer"
                 >
                   Términos y Condiciones
                 </button>
@@ -111,6 +116,71 @@ export default function Footer() {
 
         </div>
       </div>
+
+      {/* Modal Legal */}
+      {legalModal && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4"
+          onClick={() => setLegalModal(null)}
+        >
+          <div 
+            className="bg-slate-900 border border-slate-700 text-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setLegalModal(null)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg transition-colors cursor-pointer"
+              aria-label="Cerrar modal"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center space-x-2.5 mb-4">
+              {legalModal === 'privacy' ? (
+                <Shield className="w-5 h-5 text-brand-gold" />
+              ) : (
+                <FileText className="w-5 h-5 text-brand-gold" />
+              )}
+              <h3 className="text-base font-bold text-white">
+                {legalModal === 'privacy' ? 'Política de Privacidad' : 'Términos y Condiciones'}
+              </h3>
+            </div>
+
+            <div className="text-xs text-slate-300 space-y-3 leading-relaxed">
+              {legalModal === 'privacy' ? (
+                <>
+                  <p>
+                    En <strong>ADG Almacén de Granos S.A.</strong> protegemos la privacidad de cada productor y cliente. Sus datos de contacto y detalles operativos se procesan con absoluta reserva para coordinar fletes, acopio, insumos y liquidaciones de cereales.
+                  </p>
+                  <p>
+                    No comercializamos ni cedemos información personal o comercial a terceros ajenos a la operatoria institucional de ADG.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p>
+                    Todos los cupos de descarga, fijaciones, pesajes y transacciones de granos se rigen conforme a la normativa comercial vigente de la <strong>Bolsa de Cereales de la República Argentina</strong> y los estándares de las Cámaras Arbitrales de Cereales.
+                  </p>
+                  <p>
+                    Las cotizaciones de pizarras y simulaciones son de carácter referencial y quedan formalizadas mediante los respectivos contratos de compraventa y canje de granos.
+                  </p>
+                </>
+              )}
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-slate-800 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setLegalModal(null)}
+                className="bg-brand-green hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer"
+              >
+                Entendido
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Lower Footer: Copyright & Scroll to Top */}
       <div className="border-t border-white/5 bg-black/20">
