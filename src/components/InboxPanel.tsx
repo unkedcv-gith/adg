@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Mail, X, Trash2, MailOpen, Check } from 'lucide-react';
+import { X, Mail, Check, Trash2, MailOpen } from 'lucide-react';
 import { ContactMessage } from '../types';
 
 interface InboxPanelProps {
@@ -24,13 +24,16 @@ export default function InboxPanel({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden">
-      <div 
-        className="absolute inset-0 bg-black/40 backdrop-blur-xs transition-opacity" 
-        onClick={onClose} 
+    <div className="fixed inset-0 z-55 overflow-hidden font-sans">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+        onClick={onClose}
       />
+
       <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
         <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col">
+          
           {/* Header */}
           <div className="px-6 py-5 bg-brand-green text-white flex items-center justify-between shadow-sm">
             <div className="flex items-center space-x-2.5">
@@ -130,6 +133,7 @@ export default function InboxPanel({
           <div className="p-6 border-t border-gray-100 bg-gray-50 text-center text-[10px] text-gray-400">
             ADG Almacén de Granos S.A. © 2026 · Consola de Control de Formulario
           </div>
+
         </div>
       </div>
     </div>

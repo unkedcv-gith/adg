@@ -189,30 +189,21 @@ export const DEFAULT_CANJE_CONFIG: CanjeConfigData = {
  */
 export async function fetchLiveDolarBNA(): Promise<DolarBNA | null> {
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4000);
     const res = await fetch('https://dolarapi.com/v1/dolares/oficial', {
       headers: { 'Accept': 'application/json' },
-      cache: 'no-store',
-      signal: controller.signal
+      cache: 'no-store'
     });
-    clearTimeout(timeoutId);
-
     if (!res.ok) return null;
     const data = await res.json();
-    if (data && typeof data === 'object') {
-      const c = Number(data.compra);
-      const v = Number(data.venta);
-      if (v > 0) {
-        const fechaObj = data.fechaActualizacion ? new Date(data.fechaActualizacion) : new Date();
-        const fechaStr = fechaObj.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-        return {
-          compra: c > 0 ? c : 1499,
-          venta: v,
-          fecha: fechaStr,
-          fuente: "Banco Nación (Divisa Compra)"
-        };
-      }
+    if (data && data.venta) {
+      const fechaObj = data.fechaActualizacion ? new Date(data.fechaActualizacion) : new Date();
+      const fechaStr = fechaObj.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      return {
+        compra: Number(data.compra) || 1499,
+        venta: Number(data.venta) || 1508,
+        fecha: fechaStr,
+        fuente: "Banco Nación (Divisa Compra)"
+      };
     }
   } catch (err) {
     console.warn("No se pudo obtener el Dolar BNA en vivo, usando datos de respaldo.", err);
@@ -235,24 +226,17 @@ export interface LivePizarrasResponse {
  */
 export async function fetchLivePizarras(): Promise<LivePizarrasResponse | null> {
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4000);
     const res = await fetch('/api/pizarras', {
       headers: { 'Accept': 'application/json' },
-      cache: 'no-store',
-      signal: controller.signal
+      cache: 'no-store'
     });
-    clearTimeout(timeoutId);
-
     if (!res.ok) return null;
     const data: LivePizarrasResponse = await res.json();
-    if (data && typeof data === 'object' && data.grains && typeof data.grains === 'object') {
-      return data;
-    }
+    return data;
   } catch (err) {
     console.warn("No se pudo obtener las cotizaciones de pizarras en vivo:", err);
+    return null;
   }
-  return null;
 }
 
 // -------------------------------------------------------------
@@ -494,63 +478,24 @@ export function loadStoredCanjeConfig(): CanjeConfigData {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return DEFAULT_CANJE_CONFIG;
     const parsed = JSON.parse(raw);
-    if (parsed && typeof parsed === 'object') {
-      // Validar dolarBNA
-      const validCompra = (parsed.dolarBNA && typeof parsed.dolarBNA.compra === 'number' && parsed.dolarBNA.compra > 0)
-        ? parsed.dolarBNA.compra
-        : DEFAULT_CANJE_CONFIG.dolarBNA.compra;
-      const validVenta = (parsed.dolarBNA && typeof parsed.dolarBNA.venta === 'number' && parsed.dolarBNA.venta > 0)
-        ? parsed.dolarBNA.venta
-        : DEFAULT_CANJE_CONFIG.dolarBNA.venta;
-      const validFecha = (parsed.dolarBNA && typeof parsed.dolarBNA.fecha === 'string')
-        ? parsed.dolarBNA.fecha
-        : DEFAULT_CANJE_CONFIG.dolarBNA.fecha;
-
-      // Sanitizar granos garantizando que siempre existan los granos oficiales con precios válidos
-      const rawGrains = Array.isArray(parsed.grains) ? parsed.grains : [];
+    if (parsed && Array.isArray(parsed.grains) && parsed.dolarBNA) {
+      // Garantizar que solo existan los 5 granos oficiales requeridos
       const sanitizedGrains = INITIAL_GRAINS.map((defGrain) => {
-        const found = rawGrains.find((g: any) => g && g.id === defGrain.id);
-        const rARS = (found && typeof found.prices?.rosarioARS === 'number' && found.prices.rosarioARS > 0)
-          ? found.prices.rosarioARS
-          : defGrain.prices.rosarioARS;
-        const bARS = (found && typeof found.prices?.bahiaARS === 'number' && found.prices.bahiaARS > 0)
-          ? found.prices.bahiaARS
-          : defGrain.prices.bahiaARS;
-        const pUSD = (found && typeof found.prices?.precioUSD === 'number' && found.prices.precioUSD > 0)
-          ? found.prices.precioUSD
-          : Number((rARS / validVenta).toFixed(2));
-
-        return {
-          ...defGrain,
-          prices: {
-            rosarioARS: rARS,
-            bahiaARS: bARS,
-            precioUSD: pUSD
-          }
-        };
+        const found = parsed.grains.find((g: any) => g && g.id === defGrain.id);
+        return found ? { ...defGrain, prices: { ...defGrain.prices, ...found.prices } } : defGrain;
       });
-
       return {
         ...DEFAULT_CANJE_CONFIG,
         ...parsed,
-        dolarBNA: {
-          compra: validCompra,
-          venta: validVenta,
-          fecha: validFecha,
-          fuente: DEFAULT_CANJE_CONFIG.dolarBNA.fuente
-        },
         grains: sanitizedGrains,
         parametros: {
           ...PARAMETROS_EXCEL,
-          ...(parsed.parametros && typeof parsed.parametros === 'object' ? parsed.parametros : {})
+          ...(parsed.parametros || {})
         }
       };
     }
   } catch (e) {
-    console.warn('Error loading stored canje config, restableciendo valores limpios:', e);
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch (_) {}
+    console.error('Error loading stored canje config', e);
   }
   return DEFAULT_CANJE_CONFIG;
 }

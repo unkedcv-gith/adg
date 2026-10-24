@@ -14,16 +14,6 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 80px;
-  scroll-padding-bottom: 85px;
-}
-
-body {
-  background-color: #f9fafb;
-  color: #111827;
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Custom scrollbar matching the green theme */
@@ -42,6 +32,12 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #155d34;
+}
+
+/* Scroll padding for fixed header and mobile bottom navigation */
+html {
+  scroll-padding-top: 80px;
+  scroll-padding-bottom: 85px;
 }
 
 /* Back Arrow Animation for Volver a ADG */
@@ -101,3 +97,4 @@ body {
     max-width: 100% !important;
   }
 }
+

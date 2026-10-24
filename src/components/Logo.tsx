@@ -43,13 +43,7 @@ export default function Logo({
       {/* Color Logo */}
       <img
         src={logoImageColor}
-        onError={(e) => {
-          const target = e.currentTarget;
-          if (target.src !== `${window.location.origin}/logo.png`) {
-            target.src = '/logo.png';
-          }
-        }}
-        alt="ADG Almacén de Granos - Color"
+        alt="ADG Almacén de Granos S.A. - Color"
         className={`object-contain h-full w-auto transition-opacity duration-500 ease-in-out ${
           lightBg ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
@@ -58,13 +52,7 @@ export default function Logo({
       {/* White Logo */}
       <img
         src={logoImageWhite}
-        onError={(e) => {
-          const target = e.currentTarget;
-          if (target.src !== `${window.location.origin}/logo-white.png`) {
-            target.src = '/logo-white.png';
-          }
-        }}
-        alt="ADG Almacén de Granos - Blanco"
+        alt="ADG Almacén de Granos S.A. - Blanco"
         className={`object-contain h-full w-auto absolute top-0 left-0 transition-opacity duration-500 ease-in-out ${
           lightBg ? 'opacity-0 pointer-events-none' : 'opacity-100'
         }`}

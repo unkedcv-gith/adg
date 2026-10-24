@@ -39,7 +39,6 @@ import {
   SisaScoreOption,
   CanjeConfigData,
   DEFAULT_CANJE_CONFIG,
-  INITIAL_GRAINS,
   PlazaMercado,
   calculateCanjeExactExcel,
   fetchLiveDolarBNA,
@@ -204,42 +203,37 @@ export default function CanjeSimulator({ onBackToLanding }: CanjeSimulatorProps)
     };
   }, []);
 
-  // Grano seleccionado con protección contra arrays vacíos o configuraciones corruptas
+  // Grano seleccionado
   const selectedGrain = useMemo(() => {
-    return (config.grains || []).find((g) => g && g.id === selectedGrainId) || config.grains?.[0] || INITIAL_GRAINS[0];
+    return config.grains.find((g) => g.id === selectedGrainId) || config.grains[0];
   }, [config.grains, selectedGrainId]);
 
   // Conversión bidireccional y valores normalizados en ARS para el motor del Excel
-  const safeCompra = (config.dolarBNA && typeof config.dolarBNA.compra === 'number' && config.dolarBNA.compra > 0)
-    ? config.dolarBNA.compra
-    : 1499;
-
   const montoCalculadoARS = useMemo(() => {
     if (montoACanjear === '' || typeof montoACanjear !== 'number' || montoACanjear <= 0) return 0;
-    return moneda === 'USD' ? Math.round(montoACanjear * safeCompra) : montoACanjear;
-  }, [montoACanjear, moneda, safeCompra]);
+    return moneda === 'USD' ? Math.round(montoACanjear * config.dolarBNA.compra) : montoACanjear;
+  }, [montoACanjear, moneda, config.dolarBNA.compra]);
 
   const montoCalculadoUSD = useMemo(() => {
     if (montoACanjear === '' || typeof montoACanjear !== 'number' || montoACanjear <= 0) return 0;
-    return moneda === 'USD' ? montoACanjear : Math.round(montoACanjear / safeCompra);
-  }, [montoACanjear, moneda, safeCompra]);
+    return moneda === 'USD' ? montoACanjear : Math.round(montoACanjear / config.dolarBNA.compra);
+  }, [montoACanjear, moneda, config.dolarBNA.compra]);
 
   const precioCalculadoARS = useMemo(() => {
     if (precioPorTonelada === '' || typeof precioPorTonelada !== 'number' || precioPorTonelada <= 0) return 0;
-    return moneda === 'USD' ? Math.round(precioPorTonelada * safeCompra) : precioPorTonelada;
-  }, [precioPorTonelada, moneda, safeCompra]);
+    return moneda === 'USD' ? Math.round(precioPorTonelada * config.dolarBNA.compra) : precioPorTonelada;
+  }, [precioPorTonelada, moneda, config.dolarBNA.compra]);
 
   const precioCalculadoUSD = useMemo(() => {
     if (precioPorTonelada === '' || typeof precioPorTonelada !== 'number' || precioPorTonelada <= 0) return 0;
-    return moneda === 'USD' ? precioPorTonelada : Number((precioPorTonelada / safeCompra).toFixed(2));
-  }, [precioPorTonelada, moneda, safeCompra]);
+    return moneda === 'USD' ? precioPorTonelada : Number((precioPorTonelada / config.dolarBNA.compra).toFixed(2));
+  }, [precioPorTonelada, moneda, config.dolarBNA.compra]);
 
   // Función para obtener el precio de pizarra en la moneda actual
-  const getGrainPriceForCurrency = (grain: GrainItem | undefined, pl: PlazaMercado, mon: 'ARS' | 'USD') => {
-    if (!grain || !grain.prices) return mon === 'USD' ? 346.90 : 520000;
-    const pARS = pl === 'bahia_blanca' ? (grain.prices.bahiaARS || 518000) : (grain.prices.rosarioARS || 520000);
+  const getGrainPriceForCurrency = (grain: GrainItem, pl: PlazaMercado, mon: 'ARS' | 'USD') => {
+    const pARS = pl === 'bahia_blanca' ? grain.prices.bahiaARS : grain.prices.rosarioARS;
     if (mon === 'USD') {
-      return Number((pARS / safeCompra).toFixed(2));
+      return Number((pARS / config.dolarBNA.compra).toFixed(2));
     }
     return pARS;
   };
@@ -248,7 +242,7 @@ export default function CanjeSimulator({ onBackToLanding }: CanjeSimulatorProps)
   const precioPizarraActual = useMemo(() => {
     if (!selectedGrain) return moneda === 'USD' ? 346.90 : 520000;
     return getGrainPriceForCurrency(selectedGrain, plaza, moneda);
-  }, [selectedGrain, plaza, moneda, safeCompra]);
+  }, [selectedGrain, plaza, moneda, config.dolarBNA.compra]);
 
   // Cambio de moneda con conversión inmediata de inputs
   const handleToggleMoneda = (newMoneda: 'ARS' | 'USD') => {
@@ -442,10 +436,9 @@ export default function CanjeSimulator({ onBackToLanding }: CanjeSimulatorProps)
   // Top 3 Granos para el ticker superior (Soja, Maíz, Trigo - Girasol excluido)
   const topGrains = useMemo(() => {
     const ids = ['soja', 'maiz', 'trigo'];
-    const found = ids
-      .map((id) => (config.grains || []).find((g) => g && g.id === id))
-      .filter((g): g is GrainItem => Boolean(g && g.prices));
-    return found.length >= 3 ? found : INITIAL_GRAINS.slice(0, 3);
+    return ids
+      .map((id) => config.grains.find((g) => g.id === id))
+      .filter((g): g is GrainItem => Boolean(g));
   }, [config.grains]);
 
   // Mensaje de WhatsApp
@@ -1194,8 +1187,8 @@ export default function CanjeSimulator({ onBackToLanding }: CanjeSimulatorProps)
               <div className="grid grid-cols-3 gap-1 sm:gap-2 flex-grow w-full">
                 {topGrains.map((grain) => {
                   const isSelected = grain.id === selectedGrainId;
-                  const grainPriceARS = plaza === 'bahia_blanca' ? (grain.prices?.bahiaARS || 518000) : (grain.prices?.rosarioARS || 520000);
-                  const grainPriceUSD = grainPriceARS / safeCompra;
+                  const grainPriceARS = plaza === 'bahia_blanca' ? grain.prices.bahiaARS : grain.prices.rosarioARS;
+                  const grainPriceUSD = grainPriceARS / config.dolarBNA.compra;
                   return (
                     <button
                       key={grain.id}

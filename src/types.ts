@@ -30,6 +30,17 @@ export interface InfraMetric {
   iconName: string;
 }
 
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  subject: string;
+  message: string;
+  timestamp: string;
+  status: 'new' | 'read' | 'replied';
+}
+
 export interface LocationDetail {
   address: string;
   hours: string;
@@ -39,15 +50,4 @@ export interface LocationDetail {
     insumos: string;
     administracion: string;
   };
-}
-
-export interface ContactMessage {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  subject: string;
-  message: string;
-  timestamp: string;
-  status: 'new' | 'read';
 }
