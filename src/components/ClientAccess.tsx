@@ -8,16 +8,6 @@ import { CLIENT_ACCESS_CONTENT } from '../data/content';
 import { Lock, ArrowRight, ShieldCheck, FileText, Database } from 'lucide-react';
 
 export default function ClientAccess() {
-  const handleRedirect = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    // Standard alert + open behavior as this redirects to an independent external platform
-    const confirmRedirect = window.confirm(
-      "Usted está saliendo hacia la plataforma de Clientes ADG Almacén de Granos S.A.\n\n¿Desea continuar?"
-    );
-    if (!confirmRedirect) {
-      e.preventDefault();
-    }
-  };
-
   return (
     <section id="acceso-clientes" className="py-24 bg-brand-green-dark text-white relative overflow-hidden">
       {/* Visual background accents */}
@@ -87,7 +77,6 @@ export default function ClientAccess() {
                   href={CLIENT_ACCESS_CONTENT.destinationUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={handleRedirect}
                   className="flex items-center justify-center space-x-2 w-full bg-brand-green hover:bg-brand-green-light text-white font-bold text-xs uppercase tracking-wider py-4 px-6 rounded-2xl transition-all shadow-md hover:shadow-lg"
                 >
                   <span>{CLIENT_ACCESS_CONTENT.buttonText}</span>

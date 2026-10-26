@@ -27,6 +27,8 @@ import MobileBottomNav from './components/MobileBottomNav';
 import CanjeSimulator from './components/CanjeSimulator';
 import CanjeFloatingTrigger from './components/CanjeFloatingTrigger';
 
+import { initGA, trackPageView } from './utils/analytics';
+
 export default function App() {
   // Check URL pathname, query, or hash to determine initial page
   const [currentPage, setCurrentPage] = useState<'landing' | 'simulador'>(() => {
@@ -52,6 +54,11 @@ export default function App() {
 
   // Pluviómetro preservado en código (oculto de la visualización actual por pedido del cliente)
   const [isRainOpen, setIsRainOpen] = useState(false);
+
+  // Inicializar Google Analytics de forma segura en montaje
+  useEffect(() => {
+    initGA();
+  }, []);
 
   // Synchronize browser history / back-forward navigation & hash changes
   useEffect(() => {
@@ -87,6 +94,9 @@ export default function App() {
   useEffect(() => {
     if (typeof document === 'undefined') return;
 
+    const isProdHost = typeof window !== 'undefined' && window.location.hostname.includes('almacendegranos.com.ar');
+    const baseDomain = isProdHost ? 'https://almacendegranos.com.ar' : (typeof window !== 'undefined' ? window.location.origin : 'https://almacendegranos.com.ar');
+
     const canonicalEl = document.getElementById('canonical-url') as HTMLLinkElement | null;
     const metaDescEl = document.querySelector('meta[name="description"]') as HTMLMetaElement | null;
     const ogTitleEl = document.querySelector('meta[property="og:title"]') as HTMLMetaElement | null;
@@ -94,42 +104,48 @@ export default function App() {
     const ogUrlEl = document.querySelector('meta[property="og:url"]') as HTMLMetaElement | null;
 
     if (currentPage === 'simulador') {
-      const title = 'Simulador de Canje de Granos | ADG Almacén de Granos S.A.';
-      const desc = 'Simulá y calculá operaciones de canje de granos (soja, maíz, trigo, cebada, sorgo, arveja, maní) con cotizaciones oficiales de pizarras y dólar BNA.';
+      const title = 'Simulador de Canje de Granos | ADG Almacén de Granos';
+      const desc = 'Simulá y calculá operaciones de canje de granos versus venta tradicional (soja, maíz, trigo, cebada, sorgo, arveja, maní) con cotizaciones oficiales de pizarras y dólar BNA.';
       document.title = title;
       if (metaDescEl) metaDescEl.content = desc;
       if (ogTitleEl) ogTitleEl.content = title;
       if (ogDescEl) ogDescEl.content = desc;
-      const simUrl = `${window.location.origin}/simulador`;
+      const simUrl = `${baseDomain}/simulador`;
       if (canonicalEl) canonicalEl.href = simUrl;
       if (ogUrlEl) ogUrlEl.content = simUrl;
+      trackPageView('/simulador', title);
     } else {
-      const title = 'ADG Almacén de Granos S.A. | Acopio y Comercialización de Granos';
-      const desc = 'Acopio de granos, logística y comercialización para el productor agropecuario. Respaldada por la trayectoria de Monasterio Tattersall y PGL en Daireaux, Bs. As.';
+      const title = 'ADG Almacén de Granos | Acopio y Comercialización en Daireaux';
+      const desc = 'Acopio de granos, logística y comercialización para el productor agropecuario en Daireaux, provincia de Buenos Aires. Respaldada por Monasterio Tattersall y PGL.';
       document.title = title;
       if (metaDescEl) metaDescEl.content = desc;
       if (ogTitleEl) ogTitleEl.content = title;
       if (ogDescEl) ogDescEl.content = desc;
-      const homeUrl = `${window.location.origin}/`;
+      const homeUrl = `${baseDomain}/`;
       if (canonicalEl) canonicalEl.href = homeUrl;
       if (ogUrlEl) ogUrlEl.content = homeUrl;
+      trackPageView('/', title);
     }
   }, [currentPage]);
 
   const goToSimulator = () => {
     setCurrentPage('simulador');
-    if (window.location.pathname !== '/simulador') {
-      window.history.pushState({}, '', '?page=simulador#simulador');
-    }
+    try {
+      if (typeof window !== 'undefined' && window.location.pathname !== '/simulador') {
+        window.history.pushState({}, '', '?page=simulador#simulador');
+      }
+    } catch (_) {}
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const goToLanding = () => {
     setCurrentPage('landing');
-    if (typeof window !== 'undefined') {
-      const baseUrl = window.location.href.split('?')[0].split('#')[0];
-      window.history.pushState({}, '', baseUrl);
-    }
+    try {
+      if (typeof window !== 'undefined') {
+        const baseUrl = window.location.href.split('?')[0].split('#')[0];
+        window.history.pushState({}, '', baseUrl);
+      }
+    } catch (_) {}
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 

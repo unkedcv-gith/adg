@@ -11,27 +11,11 @@ interface CanjeFloatingTriggerProps {
 }
 
 export default function CanjeFloatingTrigger({ onOpenSimulator }: CanjeFloatingTriggerProps = {}) {
-  const handleOpenInNewWindow = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
-
-    if (typeof window !== 'undefined') {
-      try {
-        const baseUrl = window.location.href.split('#')[0].split('?')[0];
-        const targetUrl = `${baseUrl}#simulador`;
-        const newWindow = window.open(targetUrl, '_blank', 'noopener,noreferrer');
-        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-          // Fallback for sandboxed environments / popup blockers
-          if (onOpenSimulator) {
-            onOpenSimulator();
-          }
-        }
-      } catch (err) {
-        // Fallback gracefully in strict iframe sandboxes (such as AI Studio preview)
-        if (onOpenSimulator) {
-          onOpenSimulator();
-        }
-      }
+    if (onOpenSimulator) {
+      onOpenSimulator();
     }
   };
 
@@ -44,9 +28,7 @@ export default function CanjeFloatingTrigger({ onOpenSimulator }: CanjeFloatingT
       <a
         id="canje-btn-circular-trigo"
         href="#simulador"
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={handleOpenInNewWindow}
+        onClick={handleClick}
         className="group relative flex items-center justify-center p-0 bg-transparent focus:outline-none cursor-pointer transition-transform duration-300 hover:scale-105 active:scale-95 text-inherit no-underline"
         title="Abrir Simulador de Canje de Granos"
       >

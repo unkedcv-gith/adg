@@ -61,6 +61,12 @@ export default function Hero() {
             muted
             loop
             playsInline
+            preload="auto"
+            onError={(e) => {
+              // Gracefully handle video playback or decode errors on unsupported mobile browsers
+              const target = e.currentTarget;
+              target.style.display = 'none';
+            }}
             className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1500 ease-in-out ${
               index === currentVideo ? 'opacity-95' : 'opacity-0'
             }`}

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   CloudRain, 
@@ -14,7 +14,7 @@ import {
   X, 
   Info, 
   MapPin, 
-  Clock
+  Clock 
 } from 'lucide-react';
 
 export interface MeteorologicalData {
@@ -46,7 +46,7 @@ export default function RainWidget({
     setInternalIsOpen(val);
     if (onOpenChange) onOpenChange(val);
   };
-  
+
   // Real-time weather/rain state
   const [weatherData, setWeatherData] = useState<MeteorologicalData>({
     temp: 14.5,
@@ -76,7 +76,7 @@ export default function RainWidget({
           const directUrl = `https://api.open-meteo.com/v1/forecast?latitude=-36.602&longitude=-61.263&current=temperature_2m,relative_humidity_2m,precipitation,rain,weather_code&daily=precipitation_sum&timezone=America/Argentina/Buenos_Aires&past_days=7`;
           response = await fetch(directUrl);
         }
-        
+
         if (!response.ok) throw new Error('API request failed');
         const data = await response.json();
 
@@ -88,10 +88,8 @@ export default function RainWidget({
         // Parse daily sums
         const precipSums: number[] = data.daily?.precipitation_sum ?? [];
         const dailyTimes: string[] = data.daily?.time ?? [];
-
         const past_days_count = 7;
         const todayIndex = past_days_count; // index 7 is today
-
         const precipToday = precipSums[todayIndex] ?? 0.0;
         const precipYesterday = precipSums[todayIndex - 1] ?? 0.0;
 
@@ -102,7 +100,6 @@ export default function RainWidget({
         // Format day names for the past 7 days list
         const daysOfWeek = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
         const formattedDays = [];
-
         for (let i = todayIndex - 6; i <= todayIndex; i++) {
           if (dailyTimes[i] === undefined || precipSums[i] === undefined) continue;
           
@@ -132,9 +129,9 @@ export default function RainWidget({
           loading: false,
           error: false
         };
+
         setWeatherData(newWeatherData);
         onWeatherDataLoaded?.(newWeatherData);
-
       } catch (err) {
         console.error('Error fetching Daireaux weather/rain data:', err);
         
@@ -164,6 +161,7 @@ export default function RainWidget({
           loading: false,
           error: true // flag there was an error connecting to server API
         };
+
         setWeatherData(fallbackData);
         onWeatherDataLoaded?.(fallbackData);
       }
@@ -290,7 +288,6 @@ export default function RainWidget({
 
             {/* Body Area */}
             <div className="p-4 max-h-[380px] overflow-y-auto custom-scrollbar">
-              
               <div className="space-y-4">
                 
                 {/* Current Rainfall Summary Card */}
@@ -385,11 +382,7 @@ export default function RainWidget({
                     </div>
                   )}
                 </div>
-
-
-
               </div>
-
             </div>
 
             {/* Bottom panel indicator */}
@@ -405,12 +398,10 @@ export default function RainWidget({
                 Cerrar
               </button>
             </div>
-
           </motion.div>
           </div>
         )}
       </AnimatePresence>
-
     </div>
   );
 }

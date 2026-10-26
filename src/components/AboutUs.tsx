@@ -6,7 +6,7 @@
 import { ABOUT_CONTENT } from '../data/content';
 import { Leaf, Award, TrendingUp } from 'lucide-react';
 // @ts-ignore
-import dscGarantia from '../assets/images/DSC01614-1.jpg';
+import dscGarantia from '../assets/images/DSC01614.jpg';
 
 export default function AboutUs() {
   return (
