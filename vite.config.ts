@@ -6,7 +6,19 @@ import {defineConfig} from 'vite';
 export default defineConfig(() => {
   return {
     base: './',
-    plugins: [react(), tailwindcss()],
+    plugins: [
+      react(),
+      tailwindcss(),
+      {
+        name: 'preserve-root-favicons',
+        enforce: 'post',
+        transformIndexHtml(html: string) {
+          return html
+            .replace('href="./favicon.ico"', 'href="/favicon.ico"')
+            .replace('href="./favicon.svg"', 'href="/favicon.svg"');
+        },
+      },
+    ],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
