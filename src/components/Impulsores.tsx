@@ -181,7 +181,7 @@ export default function Impulsores() {
           >
             <img 
               src={dscParallax} 
-              alt="DSC01655 ADG Silos"
+              alt="Instalaciones y silos de acopio de ADG Almacén de Granos en Daireaux"
               className="w-full h-full object-cover object-[center_68%] opacity-65"
               style={{ objectPosition: 'center 68%' }}
               referrerPolicy="no-referrer"
