@@ -10,6 +10,8 @@ import { ArrowRight, Lock } from 'lucide-react';
 
 // @ts-ignore
 import heroVideo from '../assets/images/video.mp4';
+// @ts-ignore
+import logoImageColor from '../assets/images/logo_completo_color.png';
 
 const BACKGROUND_VIDEOS = [
   heroVideo
@@ -17,6 +19,31 @@ const BACKGROUND_VIDEOS = [
 
 export default function Hero() {
   const [currentVideo, setCurrentVideo] = useState(0);
+  const [isVideoReady, setIsVideoReady] = useState(false);
+  const [videoError, setVideoError] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handleCanPlay = () => setIsVideoReady(true);
+    const handleError = () => setVideoError(true);
+
+    video.addEventListener('playing', handleCanPlay);
+    video.addEventListener('canplay', handleCanPlay);
+    video.addEventListener('error', handleError);
+
+    if (video.readyState >= 3 && !video.paused) {
+      setIsVideoReady(true);
+    }
+
+    return () => {
+      video.removeEventListener('playing', handleCanPlay);
+      video.removeEventListener('canplay', handleCanPlay);
+      video.removeEventListener('error', handleError);
+    };
+  }, []);
 
   useEffect(() => {
     if (BACKGROUND_VIDEOS.length <= 1) return;
@@ -44,25 +71,38 @@ export default function Hero() {
     <section id="inicio" className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-white">
       {/* Background Video Sequence with elegant white gradient overlay */}
       <div className="absolute inset-0 z-0 bg-white">
-        {/* Fallback Static Image (rendered behind the video) */}
-        <img
-          src="/og-image.jpg"
-          alt="Instalaciones de acopio y almacenaje ADG Almacén de Granos en Daireaux"
-          className="absolute inset-0 w-full h-full object-cover object-center opacity-30"
-          decoding="async"
-        />
+        {/* Placeholder mientras carga el video o si falla: Logo institucional original centrado sobre fondo sobrio */}
+        <div
+          className={`absolute inset-0 flex items-center justify-center bg-white transition-opacity duration-1000 ease-in-out ${
+            isVideoReady && !videoError ? 'opacity-0 pointer-events-none' : 'opacity-100'
+          }`}
+          aria-hidden={isVideoReady}
+        >
+          <div className="flex flex-col items-center justify-center px-4 select-none">
+            <img
+              src={logoImageColor}
+              alt="ADG Almacén de Granos S.A."
+              className="w-48 sm:w-64 md:w-72 h-auto object-contain opacity-75"
+              decoding="async"
+            />
+          </div>
+        </div>
 
         {/* Multi-video layers for a smooth hardware-accelerated crossfade */}
         {BACKGROUND_VIDEOS.map((src, index) => (
           <video
             key={src}
+            ref={index === 0 ? videoRef : undefined}
             src={src}
             autoPlay
             muted
             loop
             playsInline
-            className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1500 ease-in-out ${
-              index === currentVideo ? 'opacity-95' : 'opacity-0'
+            onLoadedData={() => setIsVideoReady(true)}
+            onPlaying={() => setIsVideoReady(true)}
+            onError={() => setVideoError(true)}
+            className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 ease-in-out ${
+              isVideoReady && !videoError && index === currentVideo ? 'opacity-95' : 'opacity-0'
             }`}
           />
         ))}
